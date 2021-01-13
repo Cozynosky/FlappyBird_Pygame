@@ -1,6 +1,5 @@
 import pygame, sys
 from pygame.locals import *
-from pygame.time import get_ticks
 
 class Game:
     pygame.init()
@@ -45,16 +44,16 @@ class Game:
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
                     if self.bird.isJumping == True:
-                        self.bird.j_speed = 10
+                        self.bird.j_speed = 18
                     else:
                         self.bird.isJumping = True
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if self.bird.isJumping == True:
-                        self.bird.j_speed = 10
+                        self.bird.j_speed = 18
                     else:
                         self.bird.isJumping = True
-
+                    
     def draw(self):
         #draw background and other one on right side so when original moves left we sill see background
         self.window.blit(self.background, self.background_rect.topleft)
@@ -77,10 +76,11 @@ class Game:
 class Bird:
     def __init__(self,game):
         self.game = game
-        self.gravity = 7
+        self.gravity = 5
         self.loadImages()
         self.tick = 0
-        self.j_speed = 10
+        self.j_speed = 18
+        self.angle = -90
         self.frames_for_image = self.game.framerate // len(self.images)
         self.isJumping = False
         
@@ -92,7 +92,6 @@ class Bird:
         #animating bird
         self.animate()
         
-
     def animate(self):
         #select image to draw based on framerate, we have 4 images to draw in 1 second
         if self.tick == self.game.framerate:
@@ -100,24 +99,27 @@ class Bird:
         else:
             self.image = self.images[self.tick//self.frames_for_image]
             self.tick += 1
+        #make rotation
 
     def useGravity(self):
-        #using gravity on him
+        #using gravity on the bird
         if self.rect.bottom < self.game.ground_rect.top:  
             self.rect.bottom += self.gravity
         #if touched groudn set y bottom to ground top
         else:
             self.rect.bottom = self.game.ground_rect.top
+        #going faster in time
+        self.gravity *= 1.04
 
     def jump(self):
-        self.rect.y -= self.j_speed*1.25
+        self.rect.y -= self.j_speed*0.3
         self.j_speed -= 1
-        if self.j_speed == -11:
+        if self.j_speed == -19:
             self.isJumping = False
-            self.j_speed = 10
+            self.j_speed = 18
+            #every jump reset gravity power
+            self.gravity = 5
         
-        
-
     def loadImages(self):
         #4 frames to animate
         self.images = [pygame.image.load("sprites\\yellowbird-downflap.png"),
