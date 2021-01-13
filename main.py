@@ -25,11 +25,11 @@ class Game:
     
     def update(self):
         if self.background_rect.right > 0:
-            self.background_rect.left -= 2
+            self.background_rect.left -= 1
         else:
             self.background_rect.left = 0
         if self.ground_rect.right > 0:
-            self.ground_rect.left -= 1
+            self.ground_rect.left -= 2
         else:
             self.ground_rect.left = 0
         self.bird.update()
@@ -62,11 +62,23 @@ class Game:
 class Bird:
     def __init__(self,game):
         self.game = game
+        self.gravity = 5
         self.loadImages()
         self.tick = 0
         self.frames_for_image = self.game.framerate // len(self.images)
+        self.isJumping = False
         
     def update(self):
+        #animating bird
+        self.animate()
+        #using gravity on him
+        if self.rect.bottom < self.game.ground_rect.top:
+            self.rect.bottom += self.gravity
+        #if touched groudn set y bottom to ground top
+        else:
+            self.rect.bottom = self.game.ground_rect.top
+
+    def animate(self):
         #select image to draw based on framerate, we have 4 images to draw in 1 second
         if self.tick == self.game.framerate:
             self.tick = 0
@@ -74,12 +86,15 @@ class Bird:
             self.image = self.images[self.tick//self.frames_for_image]
             self.tick += 1
 
+    def jump(self):
+        pass
+
     def loadImages(self):
         #4 frames to animate
         self.images = [pygame.image.load("sprites\\yellowbird-downflap.png"),
-                  pygame.image.load("sprites\\yellowbird-midflap.png"),
-                  pygame.image.load("sprites\\yellowbird-upflap.png"),
-                  pygame.image.load("sprites\\yellowbird-midflap.png")]
+                       pygame.image.load("sprites\\yellowbird-midflap.png"),
+                       pygame.image.load("sprites\\yellowbird-upflap.png"),
+                       pygame.image.load("sprites\\yellowbird-midflap.png")]
         self.image = self.images[0]
         self.rect = self.image.get_rect()
         self.rect.topleft = (10,200)
