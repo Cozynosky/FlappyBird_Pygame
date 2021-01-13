@@ -1,8 +1,10 @@
 import pygame, sys
 from pygame.locals import *
+from pygame.time import get_ticks
 
 class Game:
     pygame.init()
+    pygame.display.set_caption("Flappy Bird")
 
     def __init__(self):
         self.WIDTH = 288
@@ -11,6 +13,7 @@ class Game:
         self.bird = Bird(self)
         self.clock = pygame.time.Clock()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        
         self.load_images()
 
     def mainLoop(self):
@@ -39,6 +42,18 @@ class Game:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    if self.bird.isJumping == True:
+                        self.bird.j_speed = 10
+                    else:
+                        self.bird.isJumping = True
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if self.bird.isJumping == True:
+                        self.bird.j_speed = 10
+                    else:
+                        self.bird.isJumping = True
 
     def draw(self):
         #draw background and other one on right side so when original moves left we sill see background
@@ -62,21 +77,21 @@ class Game:
 class Bird:
     def __init__(self,game):
         self.game = game
-        self.gravity = 5
+        self.gravity = 7
         self.loadImages()
         self.tick = 0
+        self.j_speed = 10
         self.frames_for_image = self.game.framerate // len(self.images)
         self.isJumping = False
         
     def update(self):
+        if self.isJumping:
+            self.jump()
+        else:
+            self.useGravity()
         #animating bird
         self.animate()
-        #using gravity on him
-        if self.rect.bottom < self.game.ground_rect.top:
-            self.rect.bottom += self.gravity
-        #if touched groudn set y bottom to ground top
-        else:
-            self.rect.bottom = self.game.ground_rect.top
+        
 
     def animate(self):
         #select image to draw based on framerate, we have 4 images to draw in 1 second
@@ -86,8 +101,22 @@ class Bird:
             self.image = self.images[self.tick//self.frames_for_image]
             self.tick += 1
 
+    def useGravity(self):
+        #using gravity on him
+        if self.rect.bottom < self.game.ground_rect.top:  
+            self.rect.bottom += self.gravity
+        #if touched groudn set y bottom to ground top
+        else:
+            self.rect.bottom = self.game.ground_rect.top
+
     def jump(self):
-        pass
+        self.rect.y -= self.j_speed*1.25
+        self.j_speed -= 1
+        if self.j_speed == -11:
+            self.isJumping = False
+            self.j_speed = 10
+        
+        
 
     def loadImages(self):
         #4 frames to animate
@@ -97,7 +126,7 @@ class Bird:
                        pygame.image.load("sprites\\yellowbird-midflap.png")]
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.topleft = (10,200)
+        self.rect.topleft = (40,200)
 
 class Pipe:
     pass
