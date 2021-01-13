@@ -7,6 +7,8 @@ class Game:
     def __init__(self):
         self.WIDTH = 288
         self.HEIGHT = 512
+        self.framerate = 60
+        self.bird = Bird(self)
         self.clock = pygame.time.Clock()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.load_images()
@@ -19,7 +21,7 @@ class Game:
 
             self.inputManage()
 
-            self.clock.tick(60)
+            self.clock.tick(self.framerate)
     
     def update(self):
         if self.background_rect.right > 0:
@@ -30,6 +32,7 @@ class Game:
             self.ground_rect.left -= 1
         else:
             self.ground_rect.left = 0
+        self.bird.update()
 
     def inputManage(self):
         for event in pygame.event.get():
@@ -44,6 +47,8 @@ class Game:
         #the same with ground
         self.window.blit(self.ground,self.ground_rect.topleft)
         self.window.blit(self.ground,self.ground_rect.topright)
+        #blit bird
+        self.window.blit(self.bird.image,self.bird.rect.topleft)
     
     def load_images(self):
         #load background
@@ -55,7 +60,29 @@ class Game:
         self.ground_rect.bottom = self.background_rect.bottom
     
 class Bird:
-    pass
+    def __init__(self,game):
+        self.game = game
+        self.loadImages()
+        self.tick = 0
+        self.frames_for_image = self.game.framerate // len(self.images)
+        
+    def update(self):
+        #select image to draw based on framerate, we have 4 images to draw in 1 second
+        if self.tick == self.game.framerate:
+            self.tick = 0
+        else:
+            self.image = self.images[self.tick//self.frames_for_image]
+            self.tick += 1
+
+    def loadImages(self):
+        #4 frames to animate
+        self.images = [pygame.image.load("sprites\\yellowbird-downflap.png"),
+                  pygame.image.load("sprites\\yellowbird-midflap.png"),
+                  pygame.image.load("sprites\\yellowbird-upflap.png"),
+                  pygame.image.load("sprites\\yellowbird-midflap.png")]
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (10,200)
 
 class Pipe:
     pass
