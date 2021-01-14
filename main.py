@@ -106,8 +106,8 @@ class Game:
                 # detect jumping, when pipe is hit game stops and we dont want to jump
                 if (
                     event.key == K_SPACE
-                    and self.gamestance == "MENU"
-                    or self.gamestance == "GAME"
+                    and (self.gamestance == "MENU"
+                    or self.gamestance == "GAME")
                 ):
                     # if bird is already jumping we reset the height of jump
                     if self.bird.isJumping == True:
@@ -119,11 +119,11 @@ class Game:
                     # every jump reset gravity power and angle
                     self.bird.angle = 15
                     self.bird.gravity = 5
-                # if we in menu adc click something game starts
-                if self.gamestance == "MENU":
-                    self.gamestance = "GAME"
+                    # if we in menu adc click something game starts
+                    if self.gamestance == "MENU":
+                        self.gamestance = "GAME"
                 # if we lost we can go back to menu
-                if self.gamestance == "GAME_OVER":
+                elif event.key == K_SPACE and self.gamestance == "GAME_OVER":
                     self.gamestance = "MENU"
                     self.new_game()
             # mousebutton clicked
@@ -131,8 +131,8 @@ class Game:
                 # detect jumping, when pipe is hit game stops and we dont want to jump
                 if (
                     event.button == 1
-                    and self.gamestance == "MENU"
-                    or self.gamestance == "GAME"
+                    and (self.gamestance == "MENU"
+                    or self.gamestance == "GAME")
                 ):
                     # if bird is already jumping we reset the height of jump
                     if self.bird.isJumping == True:
@@ -144,11 +144,11 @@ class Game:
                     # every jump reset gravity power and angle
                     self.bird.angle = 15
                     self.bird.gravity = 5
-                # if we in menu adc click something game starts
-                if self.gamestance == "MENU":
-                    self.gamestance = "GAME"
+                    # if we in menu adc click something game starts
+                    if self.gamestance == "MENU":
+                        self.gamestance = "GAME"
                 # if we lost we can go back to menu
-                elif self.gamestance == "GAME_OVER":
+                elif event.button == 1 and self.gamestance == "GAME_OVER":
                     self.gamestance = "MENU"
                     self.new_game()
 
