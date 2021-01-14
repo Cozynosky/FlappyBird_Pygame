@@ -1,7 +1,7 @@
 Introduction
 ============
 I just wanted to test mu pygame skills after one week of learing it, so it is basically Flappy Bird in pygame.
-I've just stole assets and sounds from the Internet :)))) and made this game in not all two days so I am kinda proud of myslef.
+I've just stole assets and sounds from the Internet :)))) and made this game in not all two days so I am kinda proud of myself.
 
 Game mechanics
 -------------
