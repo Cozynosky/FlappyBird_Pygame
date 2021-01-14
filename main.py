@@ -6,7 +6,7 @@ class Game:
     pygame.init()
     pygame.mixer.init()
     pygame.display.set_caption("Flappy Bird")
-    Icon = pygame.image.load('sprites\yellowbird-upflap.png')
+    Icon = pygame.image.load('sprites\\yellowbird-upflap.png')
     pygame.display.set_icon(Icon)
 
     def __init__(self):
