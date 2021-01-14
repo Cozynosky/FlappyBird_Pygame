@@ -8,12 +8,10 @@ class Game:
     def __init__(self):
         self.WIDTH = 288
         self.HEIGHT = 512
-        self.gamestance = "GAME"
+        self.gamestance = "MENU"
         self.framerate = 60
-        self.bird = Bird(self)
-        self.clock = pygame.time.Clock()
+        self.new_game()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.pipes = [Pipe(self,self.WIDTH*1.25),Pipe(self,self.WIDTH*1.25+176)]
         self.load_images()
 
     def mainLoop(self):
@@ -26,6 +24,7 @@ class Game:
                 self.bird.animate()
             #theres whe main game magic work
             if self.gamestance == "GAME":
+                self.scoring()
                 #update game objects
                 self.update()
                 self.bird.update()
@@ -40,9 +39,19 @@ class Game:
             self.draw()
 
             pygame.display.update()
-
             self.clock.tick(self.framerate)
-    
+
+    def new_game(self):
+        self.score = 0
+        self.bird = Bird(self)
+        self.clock = pygame.time.Clock()
+        self.pipes = [Pipe(self,self.WIDTH*1.25),Pipe(self,self.WIDTH*1.25+176)]
+
+    def scoring(self):
+        for pipe in self.pipes:
+            if self.bird.rect.left == pipe.bottomPipe_rect.centerx:
+                self.score += 1
+
     def update(self):
         #animate bacground
         if self.background_rect.right > 0:
@@ -67,8 +76,18 @@ class Game:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            #key on keryboard clicked
             if event.type == KEYDOWN:
+                #if we in menu adc click something game starts
+                if self.gamestance == "MENU":
+                    self.gamestance = "GAME"
+                #if we lost we can go back to menu
+                if self.gamestance == "GAME_OVER":
+                    self.gamestance = "MENU"
+                    self.new_game()
+                #detect jumping, when pipe is hit game stops and we dont want to jump
                 if event.key == K_SPACE and self.gamestance != "PIPE_HIT":
+                    #if bird is already jumping we reset the height of jump
                     if self.bird.isJumping == True:
                         self.bird.j_speed = 18
                     else:
@@ -76,8 +95,18 @@ class Game:
                     #every jump reset gravity power and angle
                     self.bird.angle = 15
                     self.bird.gravity = 5
-            if event.type == MOUSEBUTTONDOWN and self.gamestance != "PIPE_HIT":
-                if event.button == 1:
+            #mousebutton clicked
+            if event.type == MOUSEBUTTONDOWN:
+                #if we in menu adc click something game starts
+                if self.gamestance == "MENU":
+                    self.gamestance = "GAME"
+                #if we lost we can go back to menu
+                if self.gamestance == "GAME_OVER":
+                    self.gamestance = "MENU"
+                    self.new_game()
+                #detect jumping, when pipe is hit game stops and we dont want to jump
+                if event.button == 1 and self.gamestance != "PIPE_HIT":
+                    #if bird is already jumping we reset the height of jump
                     if self.bird.isJumping == True:
                         self.bird.j_speed = 18
                     else:
@@ -99,7 +128,29 @@ class Game:
         self.window.blit(self.ground,self.ground_rect.topright)
         #blit bird
         self.window.blit(self.bird.image,self.bird.rect.topleft)
+        #blit score
+        self.drawScore()
     
+    def drawScore(self):
+        #change int score to str so we can eeasly pick number
+        score = str(self.score)
+        #length o surface wuth numbers, aour pngs have different width
+        score_surface_len = 0
+        #the we wil have x position of each number on surface
+        score_posiotions = [0]
+        for num in score:
+            score_surface_len += self.numbers_images[int(num)].get_rect().width+5
+            score_posiotions.append(score_surface_len)
+        #here we create surface to blit nuumbers
+        scoreSurface = pygame.Surface((score_surface_len-5,36),pygame.SRCALPHA)
+        for i in range(len(score)):
+            scoreSurface.blit(self.numbers_images[int(score[i])],(score_posiotions[i],0))
+        score_rect = scoreSurface.get_rect()
+        score_rect.centerx = self.WIDTH//2
+        score_rect.y = 40
+        #now we can blit score
+        self.window.blit(scoreSurface,score_rect.topleft)
+
     def load_images(self):
         #load background
         self.background = pygame.image.load("sprites\\background-day.png")
@@ -108,7 +159,20 @@ class Game:
         self.ground = pygame.image.load("sprites\\base.png")
         self.ground_rect = self.ground.get_rect()
         self.ground_rect.bottom = self.background_rect.bottom
-    
+        #load_numbers
+        self.numbers_images = [
+                        pygame.image.load("sprites\\0.png"),
+                        pygame.image.load("sprites\\1.png"),
+                        pygame.image.load("sprites\\2.png"),
+                        pygame.image.load("sprites\\3.png"),
+                        pygame.image.load("sprites\\4.png"),
+                        pygame.image.load("sprites\\5.png"),
+                        pygame.image.load("sprites\\6.png"),
+                        pygame.image.load("sprites\\7.png"),
+                        pygame.image.load("sprites\\8.png"),
+                        pygame.image.load("sprites\\9.png")
+                       ]          
+
 class Bird:
     def __init__(self,game):
         self.game = game
@@ -164,14 +228,14 @@ class Bird:
             self.j_speed = 18
         
     def loadImages(self):
-        #4 frames to animate
+        #4 frames to animate   
         self.images = [pygame.image.load("sprites\\yellowbird-downflap.png"),
                        pygame.image.load("sprites\\yellowbird-midflap.png"),
                        pygame.image.load("sprites\\yellowbird-upflap.png"),
                        pygame.image.load("sprites\\yellowbird-midflap.png")]
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.topleft = (40,200)
+        self.rect.topright = (self.game.WIDTH//2,200)
 
 class Pipe():
     
@@ -189,9 +253,9 @@ class Pipe():
             self.generatePipes(288)
     
     def generatePipes(self, pipeleft):
-        self.upperPipe_rect.bottom = random.randint(40,255)
+        self.upperPipe_rect.bottom = random.randint(40,250)
         self.upperPipe_rect.left = pipeleft
-        self.bottomPipe_rect.top = self.upperPipe_rect.bottom+105
+        self.bottomPipe_rect.top = self.upperPipe_rect.bottom+110
         self.bottomPipe_rect.left = pipeleft
     
     def load_images(self):
