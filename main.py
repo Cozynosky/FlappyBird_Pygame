@@ -34,12 +34,12 @@ class Game:
             if self.gamestance == "GAME":
                 self.pipecollisionDetect()
                 self.groundcollisionDetect()
-                self.scoring()
                 # update game objects
                 self.update()
-                self.bird.update()
                 for pipe in self.pipes:
                     pipe.update()
+                self.bird.update()
+                self.scoring()
 
             # when hit the pipe everything stops and bird fly down
             if self.gamestance == "PIPE_HIT":
@@ -63,19 +63,19 @@ class Game:
 
     def scoring(self):
         for pipe in self.pipes:
-            if self.bird.rect.left == pipe.bottomPipe_rect.centerx:
+            if 126 == pipe.bottomPipe_rect.centerx:
                 self.score += 1
                 self.point_sound.play()
 
     def update(self):
         # animate bacground
         if self.background_rect.right > 0:
-            self.background_rect.left -= 1
+            self.background_rect.left -= 2
         else:
             self.background_rect.left = 0
         # animate ground
         if self.ground_rect.right > 0:
-            self.ground_rect.left -= 1
+            self.ground_rect.left -= 2
         else:
             self.ground_rect.left = 0
 
@@ -312,8 +312,8 @@ class Pipe:
 
     def update(self):
         if self.upperPipe_rect.right > 0:
-            self.upperPipe_rect.left -= 1
-            self.bottomPipe_rect.left -= 1
+            self.upperPipe_rect.left -= 2
+            self.bottomPipe_rect.left -= 2
         else:
             self.generatePipes(288)
 
