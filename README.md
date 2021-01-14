@@ -13,6 +13,10 @@ Screenshots
 ===========
 ![Menu](https://media.giphy.com/media/SXhjXVlPrkUCs3rNQR/giphy.gif) ![GAME](https://media.giphy.com/media/GyfkbfCcosc3fkIhXK/giphy.gif)
 
+Additional info
+==============
+I made this on windows so there are some problems with loading data for know, I'll fix it someday.
+
 Technologies
 ===========
 * Python 3.8.3
