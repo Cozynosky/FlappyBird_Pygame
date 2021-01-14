@@ -10,12 +10,15 @@ class Game:
         self.HEIGHT = 512
         self.gamestance = "MENU"
         self.framerate = 60
+        self.tick = 0
         self.new_game()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.load_images()
 
     def mainLoop(self):
         while True:
+            if self.tick == self.framerate:
+                self.tick = 0
             self.collisionDetect()
             #if when we only see backgroudn and flappping bird
             if self.gamestance == "MENU":
@@ -37,7 +40,7 @@ class Game:
 
             self.inputManage()
             self.draw()
-
+            self.tick += 1
             pygame.display.update()
             self.clock.tick(self.framerate)
 
@@ -51,7 +54,8 @@ class Game:
         for pipe in self.pipes:
             if self.bird.rect.left == pipe.bottomPipe_rect.centerx:
                 self.score += 1
-
+                print(self.score)
+    
     def update(self):
         #animate bacground
         if self.background_rect.right > 0:
@@ -129,7 +133,10 @@ class Game:
         #blit bird
         self.window.blit(self.bird.image,self.bird.rect.topleft)
         #blit score
-        self.drawScore()
+        if self.gamestance != "MENU":
+            self.drawScore()
+        if self.gamestance == "MENU":
+            self.window.blit(self.menu_graphics[self.tick//30],self.menu_graphics_rect.topleft)
     
     def drawScore(self):
         #change int score to str so we can eeasly pick number
@@ -171,14 +178,19 @@ class Game:
                         pygame.image.load("sprites\\7.png"),
                         pygame.image.load("sprites\\8.png"),
                         pygame.image.load("sprites\\9.png")
-                       ]          
+                       ]
+        #load_menu_graphics
+        self.menu_graphics = [pygame.image.load("sprites\\message.png"),pygame.image.load("sprites\\message2.png")]
+        self.menu_graphics_rect = self.menu_graphics[0].get_rect()
+        self.menu_graphics_rect.center = (self.WIDTH//2,160)
+        #load gamove grapighc
+        #self.gameover_graphic = pygame.image.load("sprites\\.png")         
 
 class Bird:
     def __init__(self,game):
         self.game = game
         self.gravity = 5
         self.loadImages()
-        self.tick = 0
         self.j_speed = 18
         self.angle = 15
         self.frames_for_image = self.game.framerate // len(self.images)
@@ -196,11 +208,11 @@ class Bird:
         
     def animate(self):
         #select image to draw based on framerate, we have 4 images to draw in 1 second
-        if self.tick == self.game.framerate or self.angle < -80:
-            self.tick = 0
+        if self.angle < -80:
+            self.game.tick = 0
         
-        self.image = self.images[self.tick//self.frames_for_image]
-        self.tick += 1
+        self.image = self.images[self.game.tick//self.frames_for_image]
+        
         
     def rotate(self):
         #rotate image
@@ -235,9 +247,9 @@ class Bird:
                        pygame.image.load("sprites\\yellowbird-midflap.png")]
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.rect.topright = (self.game.WIDTH//2,200)
+        self.rect.center = (self.game.WIDTH//2,205)
 
-class Pipe():
+class Pipe:
     
     def __init__(self,game,pipeleft):
         self.game = game
