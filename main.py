@@ -3,6 +3,7 @@ from pygame.locals import *
 
 class Game:
     pygame.init()
+    pygame.mixer.init()
     pygame.display.set_caption("Flappy Bird")
 
     def __init__(self):
@@ -14,12 +15,13 @@ class Game:
         self.new_game()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.load_images()
+        self.load_sounds()
 
     def mainLoop(self):
         while True:
+            
             if self.tick == self.framerate:
                 self.tick = 0
-            self.collisionDetect()
             #if when we only see backgroudn and flappping bird
             if self.gamestance == "MENU":
                 #self update
@@ -27,6 +29,8 @@ class Game:
                 self.bird.animate()
             #theres whe main game magic work
             if self.gamestance == "GAME":
+                self.pipecollisionDetect()
+                self.groundcollisionDetect()
                 self.scoring()
                 #update game objects
                 self.update()
@@ -36,6 +40,7 @@ class Game:
                 
             #when hit the pipe everything stops and bird fly down
             if self.gamestance == "PIPE_HIT":
+                self.groundcollisionDetect()
                 self.bird.update()
 
             self.inputManage()
@@ -54,7 +59,7 @@ class Game:
         for pipe in self.pipes:
             if self.bird.rect.left == pipe.bottomPipe_rect.centerx:
                 self.score += 1
-                print(self.score)
+                self.point_sound.play()
     
     def update(self):
         #animate bacground
@@ -68,12 +73,16 @@ class Game:
         else:
             self.ground_rect.left = 0
     
-    def collisionDetect(self):
+    def pipecollisionDetect(self):
         for pipe in self.pipes:
-            if self.bird.rect.colliderect(pipe.upperPipe_rect) or self.bird.rect.colliderect(pipe.bottomPipe_rect):
+            if (self.bird.rect.colliderect(pipe.upperPipe_rect) or self.bird.rect.colliderect(pipe.bottomPipe_rect)) and not self.gamestance == "PIPE_HIT":
                 self.gamestance = "PIPE_HIT"
-        if self.bird.rect.bottom > self.ground_rect.top:
-            self.gamestance = "GAME_OVER"  
+                self.hit_sound.play()
+
+    def groundcollisionDetect(self):
+        if self.bird.rect.bottom > self.ground_rect.top and self.gamestance != "GAME_OVER":
+            self.gamestance = "GAME_OVER"
+            self.die_sound.play()
 
     def inputManage(self):
         for event in pygame.event.get():
@@ -82,42 +91,46 @@ class Game:
                 sys.exit()
             #key on keryboard clicked
             if event.type == KEYDOWN:
-                #if we in menu adc click something game starts
-                if self.gamestance == "MENU":
-                    self.gamestance = "GAME"
-                #if we lost we can go back to menu
-                if self.gamestance == "GAME_OVER":
-                    self.gamestance = "MENU"
-                    self.new_game()
                 #detect jumping, when pipe is hit game stops and we dont want to jump
-                if event.key == K_SPACE and self.gamestance != "PIPE_HIT":
-                    #if bird is already jumping we reset the height of jump
-                    if self.bird.isJumping == True:
-                        self.bird.j_speed = 18
-                    else:
-                        self.bird.isJumping = True 
-                    #every jump reset gravity power and angle
-                    self.bird.angle = 15
-                    self.bird.gravity = 5
-            #mousebutton clicked
-            if event.type == MOUSEBUTTONDOWN:
-                #if we in menu adc click something game starts
-                if self.gamestance == "MENU":
-                    self.gamestance = "GAME"
-                #if we lost we can go back to menu
-                if self.gamestance == "GAME_OVER":
-                    self.gamestance = "MENU"
-                    self.new_game()
-                #detect jumping, when pipe is hit game stops and we dont want to jump
-                if event.button == 1 and self.gamestance != "PIPE_HIT":
+                if event.key == K_SPACE and self.gamestance == "MENU" or self.gamestance == "GAME":
                     #if bird is already jumping we reset the height of jump
                     if self.bird.isJumping == True:
                         self.bird.j_speed = 18
                     else:
                         self.bird.isJumping = True
+                    #play jump sound
+                    self.wing_sound.play()
                     #every jump reset gravity power and angle
                     self.bird.angle = 15
                     self.bird.gravity = 5
+                #if we in menu adc click something game starts
+                if self.gamestance == "MENU":
+                    self.gamestance = "GAME"
+                #if we lost we can go back to menu
+                if self.gamestance == "GAME_OVER":
+                    self.gamestance = "MENU"
+                    self.new_game()
+            #mousebutton clicked
+            if event.type == MOUSEBUTTONDOWN:
+                #detect jumping, when pipe is hit game stops and we dont want to jump
+                if event.button == 1 and self.gamestance == "MENU" or self.gamestance == "GAME":
+                    #if bird is already jumping we reset the height of jump
+                    if self.bird.isJumping == True:
+                        self.bird.j_speed = 18
+                    else:
+                        self.bird.isJumping = True
+                    #play jump sound
+                    self.wing_sound.play() 
+                    #every jump reset gravity power and angle
+                    self.bird.angle = 15
+                    self.bird.gravity = 5
+                #if we in menu adc click something game starts
+                if self.gamestance == "MENU":
+                    self.gamestance = "GAME"
+                #if we lost we can go back to menu
+                elif self.gamestance == "GAME_OVER":
+                    self.gamestance = "MENU"
+                    self.new_game()
                     
     def draw(self):
         #draw background and other one on right side so when original moves left we sill see background
@@ -137,6 +150,8 @@ class Game:
             self.drawScore()
         if self.gamestance == "MENU":
             self.window.blit(self.menu_graphics[self.tick//30],self.menu_graphics_rect.topleft)
+        if self.gamestance == "GAME_OVER":
+            self.window.blit(self.gameover_graphic,self.gameover_graphic_rect.topleft)
     
     def drawScore(self):
         #change int score to str so we can eeasly pick number
@@ -184,7 +199,16 @@ class Game:
         self.menu_graphics_rect = self.menu_graphics[0].get_rect()
         self.menu_graphics_rect.center = (self.WIDTH//2,160)
         #load gamove grapighc
-        #self.gameover_graphic = pygame.image.load("sprites\\.png")         
+        self.gameover_graphic = pygame.image.load("sprites\\gameover.png")
+        self.gameover_graphic_rect = self.gameover_graphic.get_rect()
+        self.gameover_graphic_rect.centerx = self.WIDTH//2
+        self.gameover_graphic_rect.top = 100         
+    
+    def load_sounds(self):
+        self.hit_sound = pygame.mixer.Sound("audio\\hit.wav")
+        self.die_sound = pygame.mixer.Sound("audio\\die.wav")
+        self.point_sound = pygame.mixer.Sound("audio\\point.wav")
+        self.wing_sound = pygame.mixer.Sound("audio\\wing.wav")
 
 class Bird:
     def __init__(self,game):
@@ -197,7 +221,7 @@ class Bird:
         self.isJumping = False
         
     def update(self):
-        if self.isJumping:
+        if self.isJumping and not self.game.gamestance == "PIPE_HIT":
             self.jump()
         else:
             self.useGravity()
@@ -212,8 +236,7 @@ class Bird:
             self.game.tick = 0
         
         self.image = self.images[self.game.tick//self.frames_for_image]
-        
-        
+             
     def rotate(self):
         #rotate image
         rot_image = pygame.transform.rotate(self.image,self.angle)
