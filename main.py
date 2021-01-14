@@ -8,20 +8,38 @@ class Game:
     def __init__(self):
         self.WIDTH = 288
         self.HEIGHT = 512
+        self.gamestance = "GAME"
         self.framerate = 60
         self.bird = Bird(self)
         self.clock = pygame.time.Clock()
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.pipes = [Pipe(self,self.WIDTH*1.25),Pipe(self,self.WIDTH*1.25+160)]
+        self.pipes = [Pipe(self,self.WIDTH*1.25),Pipe(self,self.WIDTH*1.25+176)]
         self.load_images()
 
     def mainLoop(self):
         while True:
-            self.update()
-            self.draw()
-            pygame.display.update()
+            self.collisionDetect()
+            #if when we only see backgroudn and flappping bird
+            if self.gamestance == "MENU":
+                #self update
+                self.update()
+                self.bird.animate()
+            #theres whe main game magic work
+            if self.gamestance == "GAME":
+                #update game objects
+                self.update()
+                self.bird.update()
+                for pipe in self.pipes:
+                    pipe.update()
+                
+            #when hit the pipe everything stops and bird fly down
+            if self.gamestance == "PIPE_HIT":
+                self.bird.update()
 
             self.inputManage()
+            self.draw()
+
+            pygame.display.update()
 
             self.clock.tick(self.framerate)
     
@@ -36,10 +54,13 @@ class Game:
             self.ground_rect.left -= 1
         else:
             self.ground_rect.left = 0
-        #update game objects
-        self.bird.update()
+    
+    def collisionDetect(self):
         for pipe in self.pipes:
-            pipe.update()
+            if self.bird.rect.colliderect(pipe.upperPipe_rect) or self.bird.rect.colliderect(pipe.bottomPipe_rect):
+                self.gamestance = "PIPE_HIT"
+        if self.bird.rect.bottom > self.ground_rect.top:
+            self.gamestance = "GAME_OVER"  
 
     def inputManage(self):
         for event in pygame.event.get():
@@ -47,15 +68,15 @@ class Game:
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
-                if event.key == K_SPACE:
+                if event.key == K_SPACE and self.gamestance != "PIPE_HIT":
                     if self.bird.isJumping == True:
                         self.bird.j_speed = 18
                     else:
-                        self.bird.isJumping = True
+                        self.bird.isJumping = True 
                     #every jump reset gravity power and angle
                     self.bird.angle = 15
                     self.bird.gravity = 5
-            if event.type == MOUSEBUTTONDOWN:
+            if event.type == MOUSEBUTTONDOWN and self.gamestance != "PIPE_HIT":
                 if event.button == 1:
                     if self.bird.isJumping == True:
                         self.bird.j_speed = 18
@@ -168,9 +189,9 @@ class Pipe():
             self.generatePipes(288)
     
     def generatePipes(self, pipeleft):
-        self.upperPipe_rect.bottom = random.randint(self.game.HEIGHT//5,(self.game.HEIGHT//5)*3)
+        self.upperPipe_rect.bottom = random.randint(40,255)
         self.upperPipe_rect.left = pipeleft
-        self.bottomPipe_rect.top = self.upperPipe_rect.bottom+100
+        self.bottomPipe_rect.top = self.upperPipe_rect.bottom+105
         self.bottomPipe_rect.left = pipeleft
     
     def load_images(self):
