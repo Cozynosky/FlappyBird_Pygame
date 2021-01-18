@@ -6,7 +6,7 @@ class Game:
     pygame.init()
     pygame.mixer.init()
     pygame.display.set_caption("Flappy Bird")
-    Icon = pygame.image.load('sprites\\yellowbird-upflap.png')
+    Icon = pygame.image.load('sprites/yellowbird-upflap.png')
     pygame.display.set_icon(Icon)
 
     def __init__(self):
@@ -199,43 +199,43 @@ class Game:
 
     def load_images(self):
         # load background
-        self.background = pygame.image.load("sprites\\background-day.png")
+        self.background = pygame.image.load("sprites/background-day.png")
         self.background_rect = self.background.get_rect()
         # load ground and place it on the bottom
-        self.ground = pygame.image.load("sprites\\base.png")
+        self.ground = pygame.image.load("sprites/base.png")
         self.ground_rect = self.ground.get_rect()
         self.ground_rect.bottom = self.background_rect.bottom
         # load_numbers
         self.numbers_images = [
-            pygame.image.load("sprites\\0.png"),
-            pygame.image.load("sprites\\1.png"),
-            pygame.image.load("sprites\\2.png"),
-            pygame.image.load("sprites\\3.png"),
-            pygame.image.load("sprites\\4.png"),
-            pygame.image.load("sprites\\5.png"),
-            pygame.image.load("sprites\\6.png"),
-            pygame.image.load("sprites\\7.png"),
-            pygame.image.load("sprites\\8.png"),
-            pygame.image.load("sprites\\9.png"),
+            pygame.image.load("sprites/0.png"),
+            pygame.image.load("sprites/1.png"),
+            pygame.image.load("sprites/2.png"),
+            pygame.image.load("sprites/3.png"),
+            pygame.image.load("sprites/4.png"),
+            pygame.image.load("sprites/5.png"),
+            pygame.image.load("sprites/6.png"),
+            pygame.image.load("sprites/7.png"),
+            pygame.image.load("sprites/8.png"),
+            pygame.image.load("sprites/9.png"),
         ]
         # load_menu_graphics
         self.menu_graphics = [
-            pygame.image.load("sprites\\message.png"),
-            pygame.image.load("sprites\\message2.png"),
+            pygame.image.load("sprites/message.png"),
+            pygame.image.load("sprites/message2.png"),
         ]
         self.menu_graphics_rect = self.menu_graphics[0].get_rect()
         self.menu_graphics_rect.center = (self.WIDTH // 2, 160)
         # load gamove grapighc
-        self.gameover_graphic = pygame.image.load("sprites\\gameover.png")
+        self.gameover_graphic = pygame.image.load("sprites/gameover.png")
         self.gameover_graphic_rect = self.gameover_graphic.get_rect()
         self.gameover_graphic_rect.centerx = self.WIDTH // 2
         self.gameover_graphic_rect.top = 100
 
     def load_sounds(self):
-        self.hit_sound = pygame.mixer.Sound("audio\\hit.wav")
-        self.die_sound = pygame.mixer.Sound("audio\\die.wav")
-        self.point_sound = pygame.mixer.Sound("audio\\point.wav")
-        self.wing_sound = pygame.mixer.Sound("audio\\wing.wav")
+        self.hit_sound = pygame.mixer.Sound("audio/hit.wav")
+        self.die_sound = pygame.mixer.Sound("audio/die.wav")
+        self.point_sound = pygame.mixer.Sound("audio/point.wav")
+        self.wing_sound = pygame.mixer.Sound("audio/wing.wav")
 
 
 class Bird:
@@ -293,10 +293,10 @@ class Bird:
     def loadImages(self):
         # 4 frames to animate
         self.images = [
-            pygame.image.load("sprites\\yellowbird-downflap.png"),
-            pygame.image.load("sprites\\yellowbird-midflap.png"),
-            pygame.image.load("sprites\\yellowbird-upflap.png"),
-            pygame.image.load("sprites\\yellowbird-midflap.png"),
+            pygame.image.load("sprites/yellowbird-downflap.png"),
+            pygame.image.load("sprites/yellowbird-midflap.png"),
+            pygame.image.load("sprites/yellowbird-upflap.png"),
+            pygame.image.load("sprites/yellowbird-midflap.png"),
         ]
         self.image = self.images[0]
         self.rect = self.image.get_rect()
@@ -325,7 +325,7 @@ class Pipe:
 
     def load_images(self):
         # load bottom pipe
-        self.bottomPipe = pygame.image.load("sprites\pipe-green.png")
+        self.bottomPipe = pygame.image.load("sprites/pipe-green.png")
         self.bottomPipe_rect = self.bottomPipe.get_rect()
 
         # make flipped
